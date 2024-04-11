@@ -273,21 +273,21 @@ function EspObject:Render()
 	local options = self.options;
 	local corners = self.corners;
 
-    visible.box.Visible = enabled and onScreen and options.box and options.boxColor[2] < 1; -- Check if transparency is less than 1
-    if visible.box.Visible then
-        local box = visible.box;
-        box.Position = corners.topLeft;
-        box.Size = corners.bottomRight - corners.topLeft;
-        box.Color = parseColor(self, options.boxColor[1]);
-        box.Transparency = options.boxColor[2];
-    
-        local boxOutline = visible.boxOutline;
-        boxOutline.Position = box.Position;
-        boxOutline.Size = box.Size;
-        boxOutline.Color = parseColor(self, options.boxOutlineColor[1], true);
-        boxOutline.Transparency = options.boxOutlineColor[2];
-    end
-    
+	visible.box.Visible = enabled and onScreen and options.box;
+	visible.boxOutline.Visible = visible.box.Visible and options.boxOutline;
+	if visible.box.Visible then
+		local box = visible.box;
+		box.Position = corners.topLeft;
+		box.Size = corners.bottomRight - corners.topLeft;
+		box.Color = parseColor(self, options.boxColor[1]);
+		box.Transparency = options.boxColor[2];
+
+		local boxOutline = visible.boxOutline;
+		boxOutline.Position = box.Position;
+		boxOutline.Size = box.Size;
+		boxOutline.Color = parseColor(self, options.boxOutlineColor[1], true);
+		boxOutline.Transparency = options.boxOutlineColor[2];
+	end
 
 	visible.boxFill.Visible = enabled and onScreen and options.boxFill;
 	if visible.boxFill.Visible then
@@ -747,5 +747,22 @@ function EspInterface.getHealth(player)
 	end
 	return 100, 100;
 end
+
+-- Replace the fixed transparency value with the player's transparency value
+local transparency = player.Transparency;
+
+-- Use the player's transparency value for all ESP elements
+box.Transparency = transparency;
+boxOutline.Transparency = transparency;
+boxFill.Transparency = transparency;
+healthBarOutline.Transparency = transparency;
+healthBar.Transparency = transparency;
+healthText.Transparency = transparency;
+name.Transparency = transparency;
+distance.Transparency = transparency;
+weapon.Transparency = transparency;
+tracer.Transparency = transparency;
+tracerOutline.Transparency = transparency;
+
 
 return EspInterface;
