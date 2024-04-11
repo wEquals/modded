@@ -1,4 +1,4 @@
--- sirius sense esp library :)
+li-- sirius sense esp library :)
 -- services
 local runService = game:GetService("RunService");
 local players = game:GetService("Players");
@@ -571,8 +571,8 @@ local EspInterface = {
 	},
 	teamSettings = {    
 		enemy = {
-			enabled = true,
-			box = true,
+			enabled = false,
+			box = false,
 			boxColor = { Color3.new(1,0,0), 1 },
 			boxOutline = true,
 			boxOutlineColor = { Color3.new(), 1 },
@@ -618,8 +618,8 @@ local EspInterface = {
 			chamsOutlineColor = { Color3.new(1,0,0), 0 },
 		},
 		friendly = {
-			enabled = true,
-			box = true,
+			enabled = false,
+			box = false,
 			boxColor = { Color3.new(0,1,0), 1 },
 			boxOutline = true,
 			boxOutlineColor = { Color3.new(), 1 },
