@@ -1,3 +1,4 @@
+User
 -- sirius sense esp library :)
 -- services
 local runService = game:GetService("RunService");
@@ -205,63 +206,56 @@ function EspObject:Destruct()
 end
 
 function EspObject:Update()
-    local interface = self.interface;
+	local interface = self.interface;
 
-    self.options = interface.teamSettings[interface.isFriendly(self.player) and "friendly" or "enemy"];
-    self.character = interface.getCharacter(self.player);
-    self.health, self.maxHealth = interface.getHealth(self.player);
-    self.weapon = interface.getWeapon(self.player);
-    self.enabled = self.options.enabled and self.character and not
-        (#interface.whitelist > 0 and not find(interface.whitelist, self.player.UserId));
+	self.options = interface.teamSettings[interface.isFriendly(self.player) and "friendly" or "enemy"];
+	self.character = interface.getCharacter(self.player);
+	self.health, self.maxHealth = interface.getHealth(self.player);
+	self.weapon = interface.getWeapon(self.player);
+	self.enabled = self.options.enabled and self.character and not
+		(#interface.whitelist > 0 and not find(interface.whitelist, self.player.UserId));
 
-    if not self.character then
-        self.charCache = {};
-        self.onScreen = false;
-        return;
-    end
+	local head = self.enabled and findFirstChild(self.character, "Head");
+	if not head then
+		self.charCache = {};
+		self.onScreen = false;
+		return;
+	end
 
-    local head = findFirstChild(self.character, "Head");
-    if not head or (head.Transparency == 1 and head.Material == Enum.Material.ForceField) then
-        self.charCache = {};
-        self.onScreen = false;
-        return;
-    end
+	local _, onScreen = worldToScreen(head.Position);
+	self.onScreen = onScreen;
+	if camera then
+		self.distance = (camera.CFrame.p - head.Position).Magnitude;
+	end
 
-    local _, onScreen = worldToScreen(head.Position);
-    self.onScreen = onScreen;
-    if camera then
-        self.distance = (camera.CFrame.p - head.Position).Magnitude;
-    end
+	if interface.sharedSettings.limitDistance and depth > interface.sharedSettings.maxDistance then
+		self.onScreen = false;
+	end
 
-    if interface.sharedSettings.limitDistance and depth > interface.sharedSettings.maxDistance then
-        self.onScreen = false;
-    end
+	if self.onScreen then
+		local cache = self.charCache;
+		local children = getChildren(self.character);
+		if not cache[1] or self.childCount ~= #children then
+			clear(cache);
 
-    if self.onScreen then
-        local cache = self.charCache;
-        local children = getChildren(self.character);
-        if not cache[1] or self.childCount ~= #children then
-            clear(cache);
+			for i = 1, #children do
+				local part = children[i];
+				if isA(part, "BasePart") and isBodyPart(part.Name) then
+					cache[#cache + 1] = part;
+				end
+			end
 
-            for i = 1, #children do
-                local part = children[i];
-                if isA(part, "BasePart") and isBodyPart(part.Name) then
-                    cache[#cache + 1] = part;
-                end
-            end
+			self.childCount = #children;
+		end
 
-            self.childCount = #children;
-        end
-
-        self.corners = calculateCorners(getBoundingBox(cache));
-    elseif self.options.offScreenArrow then
-        local cframe = camera.CFrame;
-        local flat = fromMatrix(cframe.Position, cframe.RightVector, Vector3.yAxis);
-        local objectSpace = pointToObjectSpace(flat, head.Position);
-        self.direction = Vector2.new(objectSpace.X, objectSpace.Z).Unit;
-    end
+		self.corners = calculateCorners(getBoundingBox(cache));
+	elseif self.options.offScreenArrow then
+		local cframe = camera.CFrame;
+		local flat = fromMatrix(cframe.Position, cframe.RightVector, Vector3.yAxis);
+		local objectSpace = pointToObjectSpace(flat, head.Position);
+		self.direction = Vector2.new(objectSpace.X, objectSpace.Z).Unit;
+	end
 end
-
 
 function EspObject:Render()
 	local onScreen = self.onScreen or false;
@@ -571,8 +565,8 @@ local EspInterface = {
 	},
 	teamSettings = {    
 		enemy = {
-			enabled = true,
-			box = true,
+			enabled = false,
+			box = false,
 			boxColor = { Color3.new(1,0,0), 1 },
 			boxOutline = true,
 			boxOutlineColor = { Color3.new(), 1 },
@@ -618,8 +612,8 @@ local EspInterface = {
 			chamsOutlineColor = { Color3.new(1,0,0), 0 },
 		},
 		friendly = {
-			enabled = true,
-			box = true,
+			enabled = false,
+			box = false,
 			boxColor = { Color3.new(0,1,0), 1 },
 			boxOutline = true,
 			boxOutlineColor = { Color3.new(), 1 },
@@ -747,22 +741,5 @@ function EspInterface.getHealth(player)
 	end
 	return 100, 100;
 end
-
--- Replace the fixed transparency value with the player's transparency value
-local transparency = player.Transparency;
-
--- Use the player's transparency value for all ESP elements
-box.Transparency = transparency;
-boxOutline.Transparency = transparency;
-boxFill.Transparency = transparency;
-healthBarOutline.Transparency = transparency;
-healthBar.Transparency = transparency;
-healthText.Transparency = transparency;
-name.Transparency = transparency;
-distance.Transparency = transparency;
-weapon.Transparency = transparency;
-tracer.Transparency = transparency;
-tracerOutline.Transparency = transparency;
-
 
 return EspInterface;
