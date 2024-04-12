@@ -269,3 +269,16 @@ Players.Respawned:Connect(function()
     Running = false
     CancelLock()
 end)
+
+--// Listen for local player health changes
+LocalPlayer.CharacterAdded:Connect(function(character)
+    local humanoid = character:WaitForChildOfClass("Humanoid")
+    humanoid.HealthChanged:Connect(function(health)
+        if health <= 0 then
+            Running = false
+            CancelLock()
+        elseif health >= 100 then
+            Running = true
+        end
+    end)
+end)
