@@ -59,6 +59,15 @@ Environment.FOVCircle = Drawing.new("Circle")
 
 --// Functions
 
+local function CheckWall(targetPosition)
+    local ray = Ray.new(Camera.CFrame.Position, targetPosition - Camera.CFrame.Position)
+    local ignoreList = {Camera, LocalPlayer.Character}
+
+    local hit, position = workspace:FindPartOnRayWithIgnoreList(ray, ignoreList)
+
+    return not hit or hit:IsDescendantOf(LocalPlayer.Character)
+end
+
 local function CancelLock()
 	Environment.Locked = nil
 	if Animation then Animation:Cancel() end
@@ -76,11 +85,13 @@ local function GetClosestPlayer()
                 if v.Character and v.Character:FindFirstChild(Environment.Settings.LockPart) and v.Character:FindFirstChildOfClass("Humanoid") then
                     if Environment.Settings.TeamCheck and v.Team == LocalPlayer.Team then continue end
                     if Environment.Settings.AliveCheck and v.Character:FindFirstChildOfClass("Humanoid").Health <= 0 then continue end
-                    if Environment.Settings.WallCheck and #(Camera:GetPartsObscuringTarget({v.Character[Environment.Settings.LockPart].Position}, v.Character:GetDescendants())) > 0 then continue end
                     if Environment.Settings.Invisible_Check and v.Character.Head and v.Character.Head.Transparency == 1 then continue end -- Check for transparency
                     if Environment.Settings.ForceField_Check and v.Character:FindFirstChildOfClass("ForceField") then continue end -- Check for forcefield
+                    if Environment.Settings.WallCheck and not CheckWall(v.Character[Environment.Settings.LockPart].Position) then continue end -- Check for walls if WallCheck is enabled
 
-                    local Vector, OnScreen = Camera:WorldToViewportPoint(v.Character[Environment.Settings.LockPart].Position)
+                    local targetPartPosition = v.Character[Environment.Settings.LockPart].Position
+
+                    local Vector, OnScreen = Camera:WorldToViewportPoint(targetPartPosition)
                     local Distance = (Vector2(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2(Vector.X, Vector.Y)).Magnitude
 
                     if Distance < RequiredDistance and OnScreen then
