@@ -264,12 +264,6 @@ end
 --// Load
 Load()
 
---// Listen for player respawn
-Players.Respawned:Connect(function()
-    Running = false
-    CancelLock()
-end)
-
 --// Listen for local player health changes
 LocalPlayer.CharacterAdded:Connect(function(character)
     local humanoid = character:WaitForChildOfClass("Humanoid")
