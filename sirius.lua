@@ -1,5 +1,4 @@
-User
--- sirius sense esp library :)
+
 -- services
 local runService = game:GetService("RunService");
 local players = game:GetService("Players");
