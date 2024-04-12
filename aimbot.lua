@@ -27,7 +27,6 @@ local LocalPlayer = Players.LocalPlayer
 
 local RequiredDistance, Typing, Running, Animation, ServiceConnections = 2000, false, false, nil, {}
 local Whitelisted = { "", "" } -- Add usernames here that the aimbot will not aim onto
-local Notify_Target = true -- Set to true to enable printing the target's username
 
 --// Script Settings
 
@@ -43,7 +42,8 @@ Environment.Settings = {
     Toggle = false,
     LockPart = "Head", -- Body part to lock on
     Invisible_Check = false, -- Check for players with 1 transparency
-    ForceField_Check = false -- Check for players with forcefield
+    ForceField_Check = false, -- Check for players with forcefield
+    Notify_Target = true -- Set to true to enable printing the target's username
 }
 Environment.FOVSettings = {
 	Enabled = false,
@@ -109,7 +109,7 @@ local function GetClosestPlayer()
                     if Distance < RequiredDistance and OnScreen then
                         RequiredDistance = Distance
                         Environment.Locked = v
-                        if Notify_Target then
+                        if Environment.Settings.Notify_Target then
                             print("Locked onto:", v.Name) -- Print the username of the locked player
                         end
                     end
