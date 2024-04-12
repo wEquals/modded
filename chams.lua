@@ -2,6 +2,7 @@
 
 local teamCheck = false
 local enabled = false -- Add a boolean to control whether chams are enabled or not
+local Invisible_Check = false -- Add a boolean to check player transparency
 local color1 = Color3.new(1,1,1) -- If this is changed it could look at bit wierd. I recommend letting this one stay the way it is.
 local color2 = Color3.fromHex("9B494A")
 local hitboxes = {
@@ -174,19 +175,21 @@ end)
 
 players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
-        local head = character:WaitForChild("Head", 3) -- Waiting for head to exist with a timeout of 3 seconds
-        if head then
-            head:GetPropertyChangedSignal("Transparency"):Connect(function()
-                for handle, originalTransparency in pairs(chamsCache) do
-                    if head.Transparency == 1 then
-                        -- If head transparency is 1, remove chams
-                        handle.Transparency = 1
-                    else
-                        -- If head transparency is not 1, restore chams transparency
-                        handle.Transparency = originalTransparency
+        if Invisible_Check then
+            local head = character:WaitForChild("Head", 3) -- Waiting for head to exist with a timeout of 3 seconds
+            if head then
+                head:GetPropertyChangedSignal("Transparency"):Connect(function()
+                    for handle, originalTransparency in pairs(chamsCache) do
+                        if head.Transparency == 1 then
+                            -- If head transparency is 1, remove chams
+                            handle.Transparency = 1
+                        else
+                            -- If head transparency is not 1, restore chams transparency
+                            handle.Transparency = originalTransparency
+                        end
                     end
-                end
-            end)
+                end)
+            end
         end
     end)
 end)
