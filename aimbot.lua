@@ -26,6 +26,7 @@ local LocalPlayer = Players.LocalPlayer
 --// Variables
 
 local RequiredDistance, Typing, Running, Animation, ServiceConnections = 2000, false, false, nil, {}
+local Whitelisted = { "", "" } -- Add usernames here that the aimbot will not aim onto
 
 --// Script Settings
 
@@ -59,6 +60,15 @@ Environment.FOVCircle = Drawing.new("Circle")
 
 --// Functions
 
+local function IsWhitelisted(player)
+    for _, username in ipairs(Whitelisted) do
+        if player.Name == username then
+            return true
+        end
+    end
+    return false
+end
+
 local function CheckWall(targetPosition)
     local ray = Ray.new(Camera.CFrame.Position, targetPosition - Camera.CFrame.Position)
     local ignoreList = {Camera, LocalPlayer.Character}
@@ -81,7 +91,7 @@ local function GetClosestPlayer()
         RequiredDistance = (Environment.FOVSettings.Enabled and Environment.FOVSettings.Amount or 2000)
 
         for _, v in next, Players:GetPlayers() do
-            if v ~= LocalPlayer then
+            if v ~= LocalPlayer and not IsWhitelisted(v) then -- Check if player is not whitelisted
                 if v.Character and v.Character:FindFirstChild(Environment.Settings.LockPart) and v.Character:FindFirstChildOfClass("Humanoid") then
                     if Environment.Settings.TeamCheck and v.Team == LocalPlayer.Team then continue end
                     if Environment.Settings.AliveCheck and v.Character:FindFirstChildOfClass("Humanoid").Health <= 0 then continue end
