@@ -43,7 +43,7 @@ Environment.Settings = {
     LockPart = "Head", -- Body part to lock on
     Invisible_Check = false, -- Check for players with 1 transparency
     ForceField_Check = false, -- Check for players with forcefield
-    Notify_Target = true -- Set to true to enable printing the target's username
+    Notify_Target = false -- Set to true to enable printing the target's username
 }
 Environment.FOVSettings = {
 	Enabled = false,
