@@ -2,7 +2,7 @@
 
 local Chams_teamCheck = false
 local Chams_InvisibleCheck = false -- Variable to toggle chams visibility based on head transparency
-local Chams_enabled = false -- New variable to toggle chams visibility
+local Chams_enabled = true -- New variable to toggle chams visibility
 local Chams_color1 = Color3.new(1,1,1) -- If this is changed it could look a bit weird. I recommend leaving this one as it is.
 local Chams_color2 = Color3.fromHex("9B494A")
 local Chams_hitboxes = {
