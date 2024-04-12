@@ -40,9 +40,9 @@ Environment.Settings = {
     TriggerKey = "MouseButton2",
     Toggle = false,
     LockPart = "Head", -- Body part to lock on
-    Invisible_Check = true -- Check for players with 1 transparency
+    Invisible_Check = true, -- Check for players with 1 transparency
+    ForceField_Check = true -- Check for players with forcefield
 }
-
 Environment.FOVSettings = {
 	Enabled = true,
 	Visible = true,
@@ -78,6 +78,7 @@ local function GetClosestPlayer()
                     if Environment.Settings.AliveCheck and v.Character:FindFirstChildOfClass("Humanoid").Health <= 0 then continue end
                     if Environment.Settings.WallCheck and #(Camera:GetPartsObscuringTarget({v.Character[Environment.Settings.LockPart].Position}, v.Character:GetDescendants())) > 0 then continue end
                     if Environment.Settings.Invisible_Check and v.Character.Head and v.Character.Head.Transparency == 1 then continue end -- Check for transparency
+                    if Environment.Settings.ForceField_Check and v.Character:FindFirstChildOfClass("ForceField") then continue end -- Check for forcefield
 
                     local Vector, OnScreen = Camera:WorldToViewportPoint(v.Character[Environment.Settings.LockPart].Position)
                     local Distance = (Vector2(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2(Vector.X, Vector.Y)).Magnitude
