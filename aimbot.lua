@@ -63,12 +63,12 @@ local function IsWhitelisted(player)
 end
 
 local function CheckWall(targetPosition)
-    local ray = Ray.new(Camera.CFrame.Position, targetPosition - Camera.CFrame.Position)
-    local ignoreList = {Camera, LocalPlayer.Character}
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterDescendantsInstances = {Camera, LocalPlayer.Character}
+    raycastParams.IgnoreWater = true
 
-    local hit, position = workspace:FindPartOnRayWithIgnoreList(ray, ignoreList)
-
-    return not hit or hit:IsDescendantOf(LocalPlayer.Character)
+    local raycastHit = workspace:Raycast(Camera.CFrame.Position, targetPosition - Camera.CFrame.Position, raycastParams)
+    return not raycastHit or raycastHit.Instance:IsDescendantOf(LocalPlayer.Character)
 end
 
 local function CancelLock()
