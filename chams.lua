@@ -1,7 +1,7 @@
 -->>>>>>> SETTINGS
 
-local teamCheck = true
-local enabled = true -- Add a boolean to control whether chams are enabled or not
+local teamCheck = false
+local enabled = false -- Add a boolean to control whether chams are enabled or not
 local color1 = Color3.new(1,1,1) -- If this is changed it could look at bit wierd. I recommend letting this one stay the way it is.
 local color2 = Color3.fromHex("9B494A")
 local hitboxes = {
