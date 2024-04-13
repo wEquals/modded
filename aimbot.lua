@@ -2,6 +2,21 @@
 local select = select
 local pcall, getgenv, next, Vector2, mathclamp, type, mousemoverel = select(1, pcall, getgenv, next, Vector2.new, math.clamp, type, mousemoverel or (Input and Input.MouseMove))
 
+local notificationLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/laagginq/ui-libraries/main/xaxas-notification/src.lua"))();
+local notifications = notificationLibrary.new({            
+    NotificationLifetime = 3, 
+    NotificationPosition = "Middle",
+    
+    TextFont = Enum.Font.Code,
+    TextColor = Color3.fromRGB(255, 255, 255),
+    TextSize = 15,
+    
+    TextStrokeTransparency = 0, 
+    TextStrokeColor = Color3.fromRGB(0, 0, 0)
+});
+
+notifications:BuildNotificationUI();
+
 --// Preventing Multiple Processes
 pcall(function()
     getgenv().Aimbot.Functions:Exit()
@@ -99,7 +114,9 @@ local function GetClosestPlayer()
                         RequiredDistance = Distance
                         Environment.Locked = v
                         if Environment.Settings.Notify_Target then
+							
                             print("Locked onto:", v.Name) -- Print the username of the locked player
+							notifications:Notify("Locked onto ", v.Name);
                         end
                     end
                 end
