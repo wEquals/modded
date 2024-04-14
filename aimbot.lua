@@ -52,6 +52,7 @@ Environment.Settings = {
     LockPart = "Head", -- Body part to lock on
     Invisible_Check = false, -- Check for players with 1 transparency
     ForceField_Check = false, -- Check for players with forcefield
+    VisibilityCheck = false,
     Notify_Target = false -- Set to true to enable printing the target's username
 }
 Environment.FOVSettings = {
@@ -86,6 +87,16 @@ local function CheckWall(targetPosition)
     return not raycastHit or raycastHit.Instance:IsDescendantOf(LocalPlayer.Character)
 end
 
+local function CheckObscuring(targetPosition)
+    local parts = Camera:GetPartsObscuringTarget({LocalPlayer.Character.Head.Position, targetPosition}, {Camera, LocalPlayer.Character})
+    for _, part in ipairs(parts) do
+        if part.Transparency == 0 then
+            return true
+        end
+    end
+    return false
+end
+
 local function CancelLock()
     Environment.Locked = nil
     if Animation then Animation:Cancel() end
@@ -104,6 +115,7 @@ local function GetClosestPlayer()
                     if Environment.Settings.Invisible_Check and v.Character.Head and v.Character.Head.Transparency == 1 then continue end -- Check for transparency
                     if Environment.Settings.ForceField_Check and v.Character:FindFirstChildOfClass("ForceField") then continue end -- Check for forcefield
                     if Environment.Settings.WallCheck and not CheckWall(v.Character[Environment.Settings.LockPart].Position) then continue end -- Check for walls if WallCheck is enabled
+                    if Environment.Settings.VisibilityCheck and CheckObscuring(v.Character[Environment.Settings.LockPart].Position) then continue end -- Check for obscuring if VisibilityCheck is enabled
 
                     local targetPartPosition = v.Character[Environment.Settings.LockPart].Position
 
@@ -126,6 +138,7 @@ local function GetClosestPlayer()
         end
     end
 end
+
 
 --// Typing Check
 ServiceConnections.TypingStartedConnection = UserInputService.TextBoxFocused:Connect(function()
