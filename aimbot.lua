@@ -136,8 +136,12 @@ local function GetClosestPlayer()
         if (Vector2(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2(Camera:WorldToViewportPoint(Environment.Locked.Character[Environment.Settings.LockPart].Position).X, Camera:WorldToViewportPoint(Environment.Locked.Character[Environment.Settings.LockPart].Position).Y)).Magnitude > RequiredDistance then
             CancelLock()
         end
+    else
+        -- If the local player's health is zero or below, cancel the lock
+        CancelLock()
     end
 end
+
 
 
 --// Typing Check
