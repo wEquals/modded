@@ -114,9 +114,7 @@ local function GetClosestPlayer()
                         RequiredDistance = Distance
                         Environment.Locked = v
                         if Environment.Settings.Notify_Target then
-							
-                            print("Locked onto:", v.Name) -- Print the username of the locked player
-							notifications:Notify("Locked onto ", v.Name);
+                            notifications:Notify("Locked onto " .. v.Name);
                         end
                     end
                 end
