@@ -36,7 +36,6 @@ local LocalPlayer = Players.LocalPlayer
 
 --// Variables
 local RequiredDistance, Typing, Running, Animation, ServiceConnections = 2000, false, false, nil, {}
-local Whitelisted = { "", "" } -- Add usernames here that the aimbot will not aim onto
 
 --// Script Settings
 Environment.Settings = {
@@ -53,7 +52,8 @@ Environment.Settings = {
     Invisible_Check = false, -- Check for players with 1 transparency
     ForceField_Check = false, -- Check for players with forcefield
     VisibilityCheck = false,
-    Notify_Target = false -- Set to true to enable printing the target's username
+    Notify_Target = false, -- Set to true to enable printing the target's username
+    Whitelisted = { "", "" }
 }
 Environment.FOVSettings = {
     Enabled = false,
@@ -70,7 +70,7 @@ Environment.FOVCircle = Drawing.new("Circle")
 
 --// Functions
 local function IsWhitelisted(player)
-    for _, username in ipairs(Whitelisted) do
+    for _, username in ipairs(Enviroment.Settings.Whitelisted) do
         if player.Name == username then
             return true
         end
