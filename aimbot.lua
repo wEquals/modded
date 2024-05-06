@@ -40,7 +40,8 @@ Environment.Settings = {
     TriggerKey = "MouseButton2",
     Toggle = false,
     LockPart = "Head", -- Body part to lock on
-    Invisible_Check = true -- Check for players with 1 transparency
+    Notifications = false,
+    Invisible_Check = false -- Check for players with 1 transparency
 }
 
 Environment.FOVSettings = {
@@ -115,7 +116,7 @@ local function GetClosestPlayer()
     
     -- Print the target's username if it's locked
     if Environment.Locked then
-        print("Target Username:", Environment.Locked.Name)
+		
     end
 end
 
