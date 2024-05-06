@@ -76,15 +76,35 @@ local function GetClosestPlayer()
                 if v.Character and v.Character:FindFirstChild(Environment.Settings.LockPart) and v.Character:FindFirstChildOfClass("Humanoid") then
                     if Environment.Settings.TeamCheck and v.Team == LocalPlayer.Team then continue end
                     if Environment.Settings.AliveCheck and v.Character:FindFirstChildOfClass("Humanoid").Health <= 0 then continue end
-                    if Environment.Settings.WallCheck and #(Camera:GetPartsObscuringTarget({v.Character[Environment.Settings.LockPart].Position}, v.Character:GetDescendants())) > 0 then continue end
-                    if Environment.Settings.Invisible_Check and v.Character.Head and v.Character.Head.Transparency == 1 then continue end -- Check for transparency
 
-                    local Vector, OnScreen = Camera:WorldToViewportPoint(v.Character[Environment.Settings.LockPart].Position)
-                    local Distance = (Vector2(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2(Vector.X, Vector.Y)).Magnitude
+                    local targetPart = v.Character[Environment.Settings.LockPart]
+                    local ray = Ray.new(Camera.CFrame.Position, (targetPart.Position - Camera.CFrame.Position).Unit * RequiredDistance)
+                    local hitPart, hitPos = workspace:FindPartOnRay(ray, LocalPlayer.Character, false, true)
 
-                    if Distance < RequiredDistance and OnScreen then
-                        RequiredDistance = Distance
-                        Environment.Locked = v
+                    if hitPart and hitPart:IsDescendantOf(v.Character) then
+                        if Environment.Settings.WallCheck then
+                            local playerParts = v.Character:GetChildren()
+                            local obstructed = false
+                            for _, part in ipairs(playerParts) do
+                                if part:IsA("BasePart") and part.CanCollide then
+                                    local ray2 = Ray.new(Camera.CFrame.Position, (part.Position - Camera.CFrame.Position).Unit * RequiredDistance)
+                                    local hitPart2, _ = workspace:FindPartOnRay(ray2, LocalPlayer.Character, false, true)
+                                    if hitPart2 and hitPart2 ~= part then
+                                        obstructed = true
+                                        break
+                                    end
+                                end
+                            end
+                            if obstructed then continue end
+                        end
+
+                        local Vector, OnScreen = Camera:WorldToViewportPoint(targetPart.Position)
+                        local Distance = (Vector2(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2(Vector.X, Vector.Y)).Magnitude
+
+                        if Distance < RequiredDistance and OnScreen then
+                            RequiredDistance = Distance
+                            Environment.Locked = v
+                        end
                     end
                 end
             end
@@ -98,6 +118,7 @@ local function GetClosestPlayer()
         print("Target Username:", Environment.Locked.Name)
     end
 end
+
 
 
 --// Typing Check
