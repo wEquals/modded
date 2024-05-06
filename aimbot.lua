@@ -1,21 +1,17 @@
 --// Cache
-
 local select = select
 local pcall, getgenv, next, Vector2, mathclamp, type, mousemoverel = select(1, pcall, getgenv, next, Vector2.new, math.clamp, type, mousemoverel or (Input and Input.MouseMove))
 
 --// Preventing Multiple Processes
-
 pcall(function()
 	getgenv().Aimbot.Functions:Exit()
 end)
 
 --// Environment
-
 getgenv().Aimbot = {}
 local Environment = getgenv().Aimbot
 
 --// Services
-
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
@@ -24,11 +20,9 @@ local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
 --// Variables
-
 local RequiredDistance, Typing, Running, Animation, ServiceConnections = 2000, false, false, nil, {}
 
 --// Script Settings
-
 Environment.Settings = {
     Enabled = true,
     TeamCheck = false,
@@ -37,7 +31,7 @@ Environment.Settings = {
     Sensitivity = 0, -- Animation length (in seconds) before fully locking onto target
     ThirdPerson = false, -- Uses mousemoverel instead of CFrame to support locking in third person (could be choppy)
     ThirdPersonSensitivity = 3, -- Boundary: 0.1 - 5
-    TriggerKey = "MouseButton2",
+    TriggerKey = Enum.KeyCode.MouseButton2, -- Default keybind set to MouseButton2
     Toggle = false,
     LockPart = "Head", -- Body part to lock on
     Invisible_Check = true -- Check for players with 1 transparency
@@ -58,14 +52,11 @@ Environment.FOVSettings = {
 Environment.FOVCircle = Drawing.new("Circle")
 
 --// Functions
-
 local function CancelLock()
 	Environment.Locked = nil
 	if Animation then Animation:Cancel() end
 	Environment.FOVCircle.Color = Environment.FOVSettings.Color
 end
-
---// Functions
 
 local function GetClosestPlayer()
     if not Environment.Locked then
@@ -76,35 +67,15 @@ local function GetClosestPlayer()
                 if v.Character and v.Character:FindFirstChild(Environment.Settings.LockPart) and v.Character:FindFirstChildOfClass("Humanoid") then
                     if Environment.Settings.TeamCheck and v.Team == LocalPlayer.Team then continue end
                     if Environment.Settings.AliveCheck and v.Character:FindFirstChildOfClass("Humanoid").Health <= 0 then continue end
+                    if Environment.Settings.WallCheck and #(Camera:GetPartsObscuringTarget({v.Character[Environment.Settings.LockPart].Position}, v.Character:GetDescendants())) > 0 then continue end
+                    if Environment.Settings.Invisible_Check and v.Character.Head and v.Character.Head.Transparency == 1 then continue end -- Check for transparency
 
-                    local targetPart = v.Character[Environment.Settings.LockPart]
-                    local ray = Ray.new(Camera.CFrame.Position, (targetPart.Position - Camera.CFrame.Position).Unit * RequiredDistance)
-                    local hitPart, hitPos = workspace:FindPartOnRay(ray, LocalPlayer.Character, false, true)
+                    local Vector, OnScreen = Camera:WorldToViewportPoint(v.Character[Environment.Settings.LockPart].Position)
+                    local Distance = (Vector2(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2(Vector.X, Vector.Y)).Magnitude
 
-                    if hitPart and hitPart:IsDescendantOf(v.Character) then
-                        if Environment.Settings.WallCheck then
-                            local playerParts = v.Character:GetChildren()
-                            local obstructed = false
-                            for _, part in ipairs(playerParts) do
-                                if part:IsA("BasePart") and part.CanCollide then
-                                    local ray2 = Ray.new(Camera.CFrame.Position, (part.Position - Camera.CFrame.Position).Unit * RequiredDistance)
-                                    local hitPart2, _ = workspace:FindPartOnRay(ray2, LocalPlayer.Character, false, true)
-                                    if hitPart2 and hitPart2 ~= part then
-                                        obstructed = true
-                                        break
-                                    end
-                                end
-                            end
-                            if obstructed then continue end
-                        end
-
-                        local Vector, OnScreen = Camera:WorldToViewportPoint(targetPart.Position)
-                        local Distance = (Vector2(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2(Vector.X, Vector.Y)).Magnitude
-
-                        if Distance < RequiredDistance and OnScreen then
-                            RequiredDistance = Distance
-                            Environment.Locked = v
-                        end
+                    if Distance < RequiredDistance and OnScreen then
+                        RequiredDistance = Distance
+                        Environment.Locked = v
                     end
                 end
             end
@@ -115,14 +86,11 @@ local function GetClosestPlayer()
     
     -- Print the target's username if it's locked
     if Environment.Locked then
-        
+        print("Target Username:", Environment.Locked.Name)
     end
 end
 
-
-
 --// Typing Check
-
 ServiceConnections.TypingStartedConnection = UserInputService.TextBoxFocused:Connect(function()
 	Typing = true
 end)
@@ -132,7 +100,6 @@ ServiceConnections.TypingEndedConnection = UserInputService.TextBoxFocusReleased
 end)
 
 --// Main
-
 local function Load()
 	ServiceConnections.RenderSteppedConnection = RunService.RenderStepped:Connect(function()
 		if Environment.FOVSettings.Enabled and Environment.Settings.Enabled then
@@ -175,7 +142,7 @@ local function Load()
 	ServiceConnections.InputBeganConnection = UserInputService.InputBegan:Connect(function(Input)
 		if not Typing then
 			pcall(function()
-				if Input.KeyCode == Enum.KeyCode[Environment.Settings.TriggerKey] then
+				if Input.KeyCode == Environment.Settings.TriggerKey then
 					if Environment.Settings.Toggle then
 						Running = not Running
 
@@ -189,7 +156,7 @@ local function Load()
 			end)
 
 			pcall(function()
-				if Input.UserInputType == Enum.UserInputType[Environment.Settings.TriggerKey] then
+				if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode == Environment.Settings.TriggerKey then
 					if Environment.Settings.Toggle then
 						Running = not Running
 
@@ -208,13 +175,13 @@ local function Load()
 		if not Typing then
 			if not Environment.Settings.Toggle then
 				pcall(function()
-					if Input.KeyCode == Enum.KeyCode[Environment.Settings.TriggerKey] then
+					if Input.KeyCode == Environment.Settings.TriggerKey then
 						Running = false; CancelLock()
 					end
 				end)
 
 				pcall(function()
-					if Input.UserInputType == Enum.UserInputType[Environment.Settings.TriggerKey] then
+					if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode == Environment.Settings.TriggerKey then
 						Running = false; CancelLock()
 					end
 				end)
@@ -224,7 +191,6 @@ local function Load()
 end
 
 --// Functions
-
 Environment.Functions = {}
 
 function Environment.Functions:Exit()
@@ -257,7 +223,7 @@ function Environment.Functions:ResetSettings()
 		Sensitivity = 0, -- Animation length (in seconds) before fully locking onto target
 		ThirdPerson = false, -- Uses mousemoverel instead of CFrame to support locking in third person (could be choppy)
 		ThirdPersonSensitivity = 3, -- Boundary: 0.1 - 5
-		TriggerKey = "MouseButton2",
+		TriggerKey = Enum.KeyCode.MouseButton2, -- Reset keybind to MouseButton2
 		Toggle = false,
 		LockPart = "Head" -- Body part to lock on
 	}
@@ -276,5 +242,4 @@ function Environment.Functions:ResetSettings()
 end
 
 --// Load
-
 Load()
