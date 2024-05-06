@@ -31,7 +31,7 @@ local RequiredDistance, Typing, Running, Animation, ServiceConnections = 2000, f
 
 Environment.Settings = {
     Enabled = false,
-    TeamCheck = false,
+    TeamCheck = true,
     AliveCheck = true,
     WallCheck = false, -- Laggy
     Sensitivity = 0, -- Animation length (in seconds) before fully locking onto target
