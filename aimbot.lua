@@ -86,7 +86,7 @@ local function GetClosestPlayer()
     
     -- Print the target's username if it's locked
     if Environment.Locked then
-        print("Target Username:", Environment.Locked.Name)
+        
     end
 end
 
