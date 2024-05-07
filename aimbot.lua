@@ -18,6 +18,7 @@ local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
 
 --// Variables
 local RequiredDistance, Typing, Running, Animation, ServiceConnections = 2000, false, false, nil, {}
@@ -34,7 +35,8 @@ Environment.Settings = {
     TriggerKey = Enum.KeyCode.E, -- Default keybind set to MouseButton2
     Toggle = false,
     LockPart = "Head", -- Body part to lock on
-    Invisible_Check = false -- Check for players with 1 transparency
+    Invisible_Check = false, -- Check for players with 1 transparency
+    ClosestBodyPartAimbot = false -- Enable closest body part aimbot
 }
 
 Environment.FOVSettings = {
@@ -70,12 +72,32 @@ local function GetClosestPlayer()
                     if Environment.Settings.WallCheck and #(Camera:GetPartsObscuringTarget({v.Character[Environment.Settings.LockPart].Position}, v.Character:GetDescendants())) > 0 then continue end
                     if Environment.Settings.Invisible_Check and v.Character.Head and v.Character.Head.Transparency == 1 then continue end -- Check for transparency
 
-                    local Vector, OnScreen = Camera:WorldToViewportPoint(v.Character[Environment.Settings.LockPart].Position)
-                    local Distance = (Vector2(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2(Vector.X, Vector.Y)).Magnitude
+                    local closestPart = nil
+                    local closestDistance = math.huge
 
-                    if Distance < RequiredDistance and OnScreen then
-                        RequiredDistance = Distance
-                        Environment.Locked = v
+                    if Environment.Settings.ClosestBodyPartAimbot then
+                        for _, part in ipairs(v.Character:GetChildren()) do
+                            if part:IsA("BasePart") then
+                                local distance = (part.Position - Mouse.Hit.p).Magnitude
+                                if distance < closestDistance then
+                                    closestPart = part
+                                    closestDistance = distance
+                                end
+                            end
+                        end
+                    else
+                        closestPart = v.Character:FindFirstChild(Environment.Settings.LockPart)
+                    end
+
+                    if closestPart then
+                        local Vector, OnScreen = Camera:WorldToViewportPoint(closestPart.Position)
+                        local Distance = (Vector2(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2(Vector.X, Vector.Y)).Magnitude
+
+                        if Distance < RequiredDistance and OnScreen then
+                            RequiredDistance = Distance
+                            Environment.Locked = v
+                            Environment.Settings.LockPart = closestPart.Name
+                        end
                     end
                 end
             end
